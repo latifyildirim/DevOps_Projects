@@ -1,6 +1,9 @@
 FROM python:alpine
-COPY . /app
 WORKDIR /app
-RUN pip install -r requirements.txt
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+COPY . .
 EXPOSE 80
-CMD python ./app.py
+CMD python ./bookstore-api.py
+
+

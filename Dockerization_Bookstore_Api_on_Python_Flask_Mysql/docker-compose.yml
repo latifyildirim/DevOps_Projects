@@ -1,17 +1,17 @@
 version: "3.7"
-
 services:
   database:
     image: mysql:5.7
-    # platform: linux/x86_64        Bu satiri Apple islemcili cihazlar icin yazioruz.
-    restart: always                # Cunkü bu mysql:5.7 yi calistirmiyor
+    container_name: database
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: P123456p
-      MYSQL_DATABASE: bookstore_db
-      MYSQL_USER: latif
-      MYSQL_PASSWORD: Latif_123
+      MYSQL_DATABASE: "bookstore_db"
+      MYSQL_USER: "latif"
+      MYSQL_PASSWORD: "Latif_123"
+      MYSQL_ROOT_PASSWORD: "P123456p" 
     networks:
-      - latifnet
+      - groupdb
+
   myapp:
     image: latifyildirim/bookstoreapi:latest
     container_name: myapp
@@ -21,8 +21,7 @@ services:
     ports:
       - "80:80"
     networks:
-      - latifnet
+      - groupdb
 
 networks:
-  latifnet:
-    driver: bridge
+  groupdb:
