@@ -1,0 +1,45 @@
+version: '3.9'
+services:
+  app:
+    image: $ECR_REPO:latest
+    environment:
+      MYSQL_HOST: database
+      MYSQL_DATABASE: phonebook_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Latif_123
+    ports:
+      - "80:80"
+    deploy:
+      mode: global 
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first 
+    networks:
+      - phonebook-network
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - phonebook-db:/var/lib/mysql
+    configs:
+      - source: init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: phonebook_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: Latif_123 
+    networks:
+      - phonebook-network
+
+volumes:
+  phonebook-db:
+
+configs:
+  init.sql:
+    file: ./init.sql
+
+networks:
+  phonebook-network:
+    driver: overlay

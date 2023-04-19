@@ -16,7 +16,7 @@ provider "aws" {
 }
 
 provider "github" {
-  token = "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"
+  token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 }
 
 resource "aws_security_group" "bookstore-sg" {
@@ -102,7 +102,7 @@ resource "aws_instance" "web" {
     curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
     mkdir -p /home/ec2-user/bookstore    
-    TOKEN="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"
+    TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     FOLDER="https://$TOKEN@raw.githubusercontent.com/latifyildirim/bookstore-api/main/"
     curl -s --create-dirs -o "home/ec2-user/bookstore/requirements.txt" -L "$FOLDER"requirements.txt
     curl -s --create-dirs -o "home/ec2-user/bookstore/docker-compose.yml" -L "$FOLDER"docker-compose.yml
