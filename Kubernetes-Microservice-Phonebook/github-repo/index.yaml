@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  gitrepo:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-05-04T13:54:35.86745992Z"
+    description: A Helm chart for Kubernetes
+    digest: 5980cfada43c1b502cd8f1a214bee1f5431ac99b9dfbbdd1b7bed79ec3e8a2a8
+    name: gitrepo
+    type: application
+    urls:
+    - gitrepo-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-05-04T13:54:35.86589931Z"
