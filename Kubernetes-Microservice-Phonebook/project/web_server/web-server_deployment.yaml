@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+  labels:
+    app: web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      containers:
+      - name: web-server
+        image: latifyildirim/web-server:1.0 # isimde sikinti varmis
+        resources: 
+        ports:
+        - containerPort: 80
+        env: 
+          - name: MYSQL_DATABASE_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: servers-cm
+                key: MYSQL_DATABASE_HOST
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secrets  # "s" harfi eksikmis
+                key: MYSQL_PASSWORD
+          - name: MYSQL_USER
+            valueFrom:
+              configMapKeyRef:
+                name: servers-cm
+                key: MYSQL_USER                               # Genel olarak 1 tab soldaymis
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: servers-cm
+                key: MYSQL_DATABASE
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-service
+spec:
+  type: NodePort
+  selector:
+    app: web-server
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30001
+    protocol: TCP
