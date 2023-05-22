@@ -1,0 +1,18 @@
+    1  ansible_inventory --graph
+    2  ansible --version
+    3  ls
+    4  ansible-vault create secret.yml
+    5  ansible-vault view secret.yml
+    6  ansible-playbook docker_postgre.yml --ask-vault-pass
+    7  ansible _ansible_postgresql -m shell -a "sudo docker ps -a"
+    8  ansible-playbook docker_postgre.yml --ask-vault-pass
+    9  ansible-playbook docker_nodejs.yml --ask-vault-pass
+   10  curl --request POST --url 'http://54.90.129.144:5000/todos' --header 'content-type: application/json' --data '{"description":"ansible project 207"}'
+   11  curl --request POST --url 'http://54.90.129.144:5000/todos' --header 'content-type: a3.86.226.201on' --data '{"description":"ansible project 207"}'
+   12  ansible-playbook docker_react.yml --ask-vault-pass
+   13  ansible all -m ping -o
+   14  ansible all -m ping o
+   15  ansible all -m ping -o
+   16  ansible-playbook docker_nodejs.yml --ask-vault-pass
+   17  ansible-playbook docker_react.yml --ask-vault-pass
+   18  history > history.txt
