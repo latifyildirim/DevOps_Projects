@@ -1,6 +1,7 @@
 {
     "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": "file:///home/ec2-user/ansible-project/docker_postgre.yml"
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": "file:///home/ec2-user/ansible-project/docker_postgre.yml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/meta.json": "file:///home/ec2-user/ansible-project/play-role.yml"
     },
     "ansible.python.interpreterPath": "/usr/bin/python"
 }

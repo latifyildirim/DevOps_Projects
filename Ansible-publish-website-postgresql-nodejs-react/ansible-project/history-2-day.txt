@@ -1,0 +1,44 @@
+    1  cd ansible-project/
+    2  ls
+    3  ansible-playbook playbooks.yml 
+    4  ansible-playbook playbooks.yml --ask-vault-pass
+    5  cd roles/
+    6  cd react/
+    7  cd vars/
+    8  ls
+    9  cat main.yml 
+   10  ansible-vault encrypt main.yml 
+   11  pwd
+   12  ansible-vault decrypt main.yml 
+   13  cat main.yml 
+   14  cd ..
+   15  cd postgre/vars/
+   16  ls
+   17  cat main.yml 
+   18  ansible-vault encrypt main.yml 
+   19  cd ~
+   20  cd ansible-project/
+   21  ansible-playbook play-role.yml --ask-vault-pass
+   22  ansible-glaxy search docker --platform EL | grep geerl
+   23  ansible-galaxy search docker --platform EL | grep geerl
+   24  ansible-galaxy install  geerlingguy.docker
+   25  ansible-playbook play-newrole.yml 
+   26  aws                       --version
+   27  aws         version
+   28  aws version
+   29  aws --version
+   30  aws -v
+   31  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   32  sudo dnf install unzip -y
+   33  unzip awscliv2.zip
+   34  sudo ./aws/install
+   35  aws --version
+   36  aws --region=us-east-1 ssm get-parameters --names "my-passwd" --query "Parameters[*].{Value:Value}" --output text
+   37  aws configure
+   38  aws --region=us-east-1 ssm get-parameters --names "my-passwd" --query "Parameters[*].{Value:Value}" --output text
+   39  ansible-playbook play-newrole.yml  --vault-password-file ./my-vault-pass.sh 
+   40  chmod +x my-vault-pass.sh 
+   41  ansible-playbook play-newrole.yml  --vault-password-file ./my-vault-pass.sh 
+   42  ls
+   43  cd ansible-project/
+   44  history > history-2-day.txt
