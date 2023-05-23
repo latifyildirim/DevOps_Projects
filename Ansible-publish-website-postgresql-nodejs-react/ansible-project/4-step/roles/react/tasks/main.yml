@@ -23,22 +23,21 @@
           path: "{{ container_path }}"
         source: build
         state: present
-      notify: Launch nodejs docker container 
-    #   register: image_info
+      register: image_info
+    
+    - name: print the image image_info
+      ansible.builtin.debug:
+        var: image_info
 
-    # - name: print the image image_info
-    #   ansible.builtin.debug:
-    #     var: image_info
+    - name: Launch nodejs docker container 
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        ports:
+          - "3000:3000"
+      register: container_info
 
-    # - name: Launch nodejs docker container 
-    #   community.docker.docker_container:
-    #     name: "{{ container_name }}"
-    #     image: "{{ image_name }}"
-    #     state: started
-    #     ports:
-    #       - "3000:3000"
-    #   register: container_info
-
-    # - name: print the container image_info
-    #   ansible.builtin.debug:
-    #     var: container_info
+    - name: print the container image_info
+      ansible.builtin.debug:
+        var: container_info

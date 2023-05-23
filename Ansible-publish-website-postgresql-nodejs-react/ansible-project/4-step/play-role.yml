@@ -1,8 +1,11 @@
+# Burada ansible-playbook play-role.yml --ask-vault-pass
+# ansible-playbook play-newrole.yml --vault-password-file ./my-password.txt
+# ansible-playbook play-newrole.yml --vault-password-file ./my-vault-pass.sh 
 - name: install docker
   hosts: _development
   become: true
   roles:
-    - geerlingguy.docker
+    - docker
 
 - name: postgresql config
   hosts: _ansible_postgresql
@@ -18,6 +21,7 @@
 
 - name: react config
   hosts: _ansible_react
-  become: true            # ==============> Burayi handler ile degisikligi yaparak yalniz calistirdik.
+  become: true
   roles:
     - react
+
