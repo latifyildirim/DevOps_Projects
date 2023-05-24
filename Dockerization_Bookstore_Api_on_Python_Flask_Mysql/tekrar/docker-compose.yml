@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  db:
+    container_name: database
+    image: mysql:5.7 
+    environment:
+      - MYSQL_ROOT_PASSWORD=Latif_123
+      - MYSQL_PASSWORD=Latif_123
+      - MYSQL_DATABASE=bookstore_db
+      - MYSQL_USER=latif
+    networks:
+      - mynetwork 
+  app:
+    image: latifyildirim/bookstoreapi:latest
+    restart: always
+    depends_on: 
+      - db
+    ports:
+      - "80:80" 
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
