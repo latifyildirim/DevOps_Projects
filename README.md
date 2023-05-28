@@ -15,7 +15,7 @@ Die Telefonbuchanwendung zielt darauf ab, eine Telefonbuchanwendung in Python zu
 ### 🔖 [Dockerization_Bookstore_Api_on_Python_Flask_Mysql](https://github.com/latifyildirim/DevOps_Projects/tree/main/Dockerization_Bookstore_Api_on_Python_Flask_Mysql)
 Bookstore Web API Application zielt darauf ab, einen Bookstore-Webservice mit Docker zu erstellen, das Verständnis der Dockerisierung einer Anwendung. Der Anwendungscode wird als RESTful-Webservice mit Flask mithilfe von Dockerfile und Docker Compose auf AWS Elastic Compute Cloud (EC2) Instance mit Terraform bereitgestellt.
 
-### 🔖 [Docker_Swarm_Deployment_of_Phonebook_App_on_Python_Flask_Mysql_Terraform](https://github.com/latifyildirim/DevOps_Projects/tree/main/Dockerization_Bookstore_Api_on_Python_Flask_Mysql)
+### 🔖 [Docker_Swarm_Deployment_of_Phonebook_App_on_Python_Flask_Mysql_Terraform](https://github.com/latifyildirim/DevOps_Projects/tree/main/Docker-swarm-deployment-of-phonebook-app-on-python-flask-mysql-Terraform)
 Bookstore Web API Application aims to create a bookstore web service using Docker to give students the understanding to dockerization of an application. The application code is to be deployed as a RESTful web service with Flask using Dockerfile and Docker Compose on AWS Elastic Compute Cloud (EC2) Instance using Terraform.
 
 ### 🔖 [Kubernetes_Microservice_Phonebook](https://github.com/latifyildirim/DevOps_Projects/tree/main/Kubernetes-Microservice-Phonebook)
