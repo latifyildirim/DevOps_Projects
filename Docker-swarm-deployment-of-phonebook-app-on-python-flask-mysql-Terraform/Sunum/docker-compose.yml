@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  database:
+    image: mysql:5.7
+    # container_name: database   # Swarm da kullanimdan kaldirilmis.
+    # restart: always     # Bu özellik swarm da deseklenmiyor
+    environment:
+      - MYSQL_ROOT_PASSWORD=Latif_123
+      - MYSQL_DATABASE=phonebook_db
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=Latif_123
+    volumes:
+      - db_data:/var/lib/mysql
+    configs:
+      - source: init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my-network
+  app:
+    image: deneme:latest
+    # restart: always     # Bu özellik swarm da deseklenmiyor
+    deploy:        
+      # mode: global    
+      replicas: 5
+    depends_on: 
+      - database
+    ports:
+      - 80:80
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: overlay
+
+volumes:
+  db_data:
+configs:
+  init.sql:
+    file: ./init.sql
