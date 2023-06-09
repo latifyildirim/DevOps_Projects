@@ -431,13 +431,13 @@ git checkout feature/msp-8
 * Prepare docker compose file to deploy the application locally and save it as `docker-compose-local.yml` under `petclinic-microservices-with-db` folder.
 
 ``` yaml
-version: '2'
+version: '2'        # 2 secmemizin sebebi version: '3'  de 'mem_limit' özelligi yok
 
 services: 
   config-server:
     image: petclinic-config-server:dev
     container_name: config-server
-    mem_limit: 512M
+    mem_limit: 512M # fazla hafiza yememesi icin sinirliyoruz
     ports: 
       - 8888:8888
 
@@ -449,7 +449,7 @@ services:
       - 8761:8761
     depends_on: 
       - config-server
-    entrypoint: ["./dockerize", "-wait=tcp://config-server:8888", "-timeout=160s", "--", "java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    entrypoint: ["./dockerize", "-wait=tcp://config-server:8888", "-timeout=160s", "--", "java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"] # '--' Burada iki komut oldugunu ayiracmis gibi davraniyor. Java icin.
 
   customers-service:
     image: petclinic-customers-service:dev
@@ -577,4 +577,100 @@ git checkout dev
 git merge feature/msp-8
 git push origin dev
 ```
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## MSP 9 - Prepare Jenkins Server for CI/CD Pipeline
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+* Create `feature/msp-9` branch from `dev`.
+
+``` bash
+git checkout dev
+git branch feature/msp-9
+git checkout feature/msp-9
+```
+
+* Set up a Jenkins Server and enable it with `Git`,  `Docker`,  `Docker Compose`,  `AWS CLI v2`, `Python`,  `Ansible` and `Boto3`.  To do so, prepare a [Terraform file for Jenkins Server](./msp-9-jenkins-server-tf-template) with following scripts (jenkins_variables.tf, jenkins-server.tf, jenkins.auto.tf.vars, jenkinsdata.sh) and save them under `infrastructure` folder.
+
+``` bash
+#! /bin/bash
+# update os
+dnf update -y
+# set server hostname as jenkins-server
+hostnamectl set-hostname jenkins-server
+# install git
+dnf install git -y
+# install java 11
+dnf install java-11-amazon-corretto -y
+# install jenkins
+wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+dnf upgrade
+dnf install jenkins -y
+systemctl enable jenkins
+systemctl start jenkins
+# install docker
+dnf install docker -y
+systemctl start docker
+systemctl enable docker
+usermod -a -G docker ec2-user
+usermod -a -G docker jenkins
+# configure docker as cloud agent for jenkins
+cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.bak
+sed -i 's/^ExecStart=.*/ExecStart=\/usr\/bin\/dockerd -H tcp:\/\/127.0.0.1:2376 -H unix:\/\/\/var\/run\/docker.sock/g' /lib/systemd/system/docker.service
+systemctl daemon-reload
+systemctl restart jenkins
+# install docker compose
+curl -SL https://github.com/docker/compose/releases/download/v2.17.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+# install python 3
+dnf install -y python3-pip python3-devel
+# install ansible
+pip3 install ansible
+# install boto3
+pip3 install boto3 botocore
+# install terraform
+wget https://releases.hashicorp.com/terraform/1.4.6/terraform_1.4.6_linux_amd64.zip
+unzip terraform_1.4.6_linux_amd64.zip -d /usr/local/bin
+```
+
+* Commit the change, then push the terraform files file to the remote repo.
+
+``` bash
+git add .
+git commit -m 'added jenkins server terraform files'
+git push --set-upstream origin feature/msp-9
+git checkout dev
+git merge feature/msp-9
+git push origin dev
+```
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+## MSP 10 - Configure Jenkins Server for Project
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+* Launch the jenkins server using `msp-9-jenkins-server-tf-template` folder.
+
+* After launch we will go on jenkins server. So, clone the project repo to the jenkins server.
+
+```bash
+git clone https://[github username]:[your-token]@github.com/[your-git-account]/[your-repo-name-petclinic-microservices-with-db.git
+```
+
+* Get the initial administrative password.
+
+``` bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+* Enter the temporary password to unlock the Jenkins.
+
+* Install suggested plugins.
+
+* Create first admin user.
+
+* Open your Jenkins dashboard and navigate to `Manage Jenkins` >> `Manage Plugins` >> `Available` tab
+
+* Search and select `GitHub Integration`,  `Docker`,  `Docker Pipeline`, and `Jacoco` plugins, then click `Install without restart`. Note: No need to install the other `Git plugin` which is already installed can be seen under `Installed` tab.
 
