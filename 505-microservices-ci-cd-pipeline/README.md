@@ -118,7 +118,7 @@ git push origin main
     git checkout main
     git branch dev
     git checkout dev
-    git push --set-upstream origin dev   #  --set-upstream ==> -u   Sadece git push komutunu kullanarak yapmamızı sağlar.
+    git push --set-upstream origin dev   #  --set-upstream ==> -u  komutubagli kalmamizi saglar. 'git push origin dev' komutunu kullanmak yerine 'git push' komutunu kullanarak yapmamızı sağlar.
     ```
 
   + Create `release` base branch.
