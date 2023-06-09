@@ -90,30 +90,8 @@ resource "aws_instance" "web" {
   instance_type          = "t2.micro"
   key_name               = "latif"
   vpc_security_group_ids = [aws_security_group.bookstore-sg.id]
-  user_data              = <<-EOF
-    #!/bin/bash
-
-    yum update -y
-    yum install docker -y
-    systemctl start docker
-    systemctl enable docker
-    usermod -aG docker ec2-user
-    newgrp docker
-    curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-    mkdir -p /home/ec2-user/bookstore    
-    TOKEN="XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    FOLDER="https://$TOKEN@raw.githubusercontent.com/latifyildirim/bookstore-api/main/"
-    curl -s --create-dirs -o "home/ec2-user/bookstore/requirements.txt" -L "$FOLDER"requirements.txt
-    curl -s --create-dirs -o "home/ec2-user/bookstore/docker-compose.yml" -L "$FOLDER"docker-compose.yml
-    curl -s --create-dirs -o "home/ec2-user/bookstore/Dockerfile" -L "$FOLDER"Dockerfile
-    curl -s --create-dirs -o "home/ec2-user/bookstore/bookstore-api.py" -L "$FOLDER"bookstore-api.py
-    cd /home/ec2-user/bookstore/
-    docker build -t latifyildirim/bookstoreapi:latest .
-    docker-compose up -d
-
-    EOF
-  depends_on             = [github_repository_file.repo_files, github_repository.bookstore-repo]
+  user_data              = filebase64("userdata.sh") 
+  depends_on             = [github_repository.bookstore-repo, github_repository_file.repo_files]
   tags = {
     Name = "Web Server"
   }
