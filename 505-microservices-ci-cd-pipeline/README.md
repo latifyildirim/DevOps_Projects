@@ -857,7 +857,7 @@ docker run --rm -v $HOME/.m2:/root/.m2 -v `pwd`:/app -w /app maven:3.8-openjdk-1
   + Copy the Jenkins URL, paste it into `Payload URL` field, add `/github-webhook/` at the end of URL, and click on `Add webhook`.
   
   ``` yml
-  http://[jenkins-server-hostname]:8080/github-webhook/
+  http://3.84.227.33:8080/github-webhook/
   ```
 
 * Commit the change, then push the Jenkinsfile to the remote repo.
