@@ -745,6 +745,8 @@ git push --set-upstream origin feature/msp-11
 ```
 
 * Update POM file at root folder for Code Coverage Report using `Jacoco` tool plugin.
+* `( Jacoco == Java Code Coverage )  Bu Plugin Java Test sonuclarini oranlari gösterir.`
+* `%70 ve üzeri olmasi gerekir. Assagisi olursa tekrar developera geri göndeririz.`
 
 ``` xml
 <plugin>
@@ -814,13 +816,13 @@ mkdir jenkins
 ```yml
 - job name: petclinic-ci-job
 - job type: Freestyle project
-- GitHub project: https://github.com/[your-github-account]/petclinic-microservices
+- GitHub project: https://github.com/latifyildirim/Petclinic_Microservices_With_DB.git
 - Source Code Management: Git
-      Repository URL: https://github.com/[your-github-account]/petclinic-microservices.git
+      Repository URL: https://github.com/latifyildirim/Petclinic_Microservices_With_DB.git
 - Branches to build:
       Branch Specifier (blank for 'any'): - */dev 
                                           - */feature**
-                                          - */bugfix**
+                                          - */bugfix**     
 - Build triggers: GitHub hook trigger for GITScm polling
 - Build Environment: Add timestamps to the Console Output
 -Post-build Actions:
@@ -829,6 +831,9 @@ mkdir jenkins
       Add build step: Execute Shell
       Command:
 ```
+* `` bugfix  `` Develoment asamasinda hata yiklama
+* `` hotfix  `` Production asamasinda hata yiklama
+
 ```bash
 echo 'Running Unit Tests on Petclinic Application'
 docker run --rm -v $HOME/.m2:/root/.m2 -v `pwd`:/app -w /app maven:3.8-openjdk-11 mvn clean test
