@@ -1060,7 +1060,7 @@ git checkout feature/msp-14
       Command:
 ```
 ```bash
-PATH="$PATH:/usr/local/bin"
+PATH="$PATH:/usr/bin"
 APP_REPO_NAME="clarusway-repo/petclinic-app-dev"
 AWS_REGION="us-east-1"
 
@@ -1075,7 +1075,7 @@ aws ecr create-repository \
 * Prepare a script to create Docker Registry for `dev` on AWS ECR and save it as `create-ecr-docker-registry-for-dev.sh` under `infrastructure` folder.
 
 ``` bash
-PATH="$PATH:/usr/local/bin"
+PATH="$PATH:/usr/bin"
 APP_REPO_NAME="clarusway-repo/petclinic-app-dev"
 AWS_REGION="us-east-1"
 
@@ -1148,7 +1148,7 @@ resource "aws_security_group" "petclinic-mutual-sg" {
 
     ingress {
     protocol = "udp"
-    from_port = 8472
+    from_port = 8472  // Dökümantasyonda yok burda bulduk `https://github.com/coreos/coreos-kubernetes/blob/master/Documentation/kubernetes-networking.md` 
     to_port = 8472
     self = true
   }
@@ -1366,9 +1366,9 @@ git push --set-upstream origin feature/msp-16
 ```yml
 - job name: test-creating-qa-automation-infrastructure
 - job type: Freestyle project
-- GitHub project: https://github.com/[your-github-account]/petclinic-microservices
+- GitHub project: https://github.com/latifyildirim/Petclinic_Microservices_With_DB
 - Source Code Management: Git
-      Repository URL: https://github.com/[your-github-account]/petclinic-microservices.git
+      Repository URL: https://github.com/latifyildirim/Petclinic_Microservices_With_DB.git
 - Branches to build:
       Branch Specifier (blank for 'any'): */feature/msp-16
 - Build Environment: Add timestamps to the Console Output
@@ -1379,7 +1379,7 @@ git push --set-upstream origin feature/msp-16
 ```bash
 echo $PATH
 whoami
-PATH="$PATH:/usr/local/bin"
+PATH="$PATH:/usr/local/bin:/usr/bin"
 python3 --version
 pip3 --version
 ansible --version
@@ -1411,7 +1411,7 @@ PATH="$PATH:/usr/local/bin"
 ANS_KEYPAIR="petclinic-ansible-test-dev.key"
 AWS_REGION="us-east-1"
 cd infrastructure/dev-k8s-terraform
-sed -i "s/clarus/$ANS_KEYPAIR/g" main.tf
+sed -i "s/clarus/$ANS_KEYPAIR/g" main.tf # `s -search g global yani main.tf deki 'clarus' lari ANS_KEYPAIR ile degistiriyor `
 terraform init
 terraform apply -auto-approve -no-color
 ```
@@ -1425,6 +1425,7 @@ terraform apply -auto-approve -no-color
 ANS_KEYPAIR="petclinic-ansible-test-dev.key"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${ANS_KEYPAIR} ubuntu@172.31.91.243 hostname
 ```
+  * `(-o)` option diyerek ilki kara delige gidiyor. ikinci komutta ise otomatik kaydetme yi kapatiyoruz.
   * Click `Save`
 
   * Click `Build Now`
@@ -1458,7 +1459,7 @@ PATH="$PATH:/usr/local/bin"
 ANS_KEYPAIR="petclinic-ansible-test-dev.key"
 export ANSIBLE_INVENTORY="${WORKSPACE}/ansible/inventory/hosts.ini"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${ANS_KEYPAIR}"
-export ANSIBLE_HOST_KEY_CHECKING=False
+export ANSIBLE_HOST_KEY_CHECKING=False  # Baglanirken bunu kaydetsinmi diye soruyor. Bu cevap vermemiz zorunlu oldugu icin burda tanimladik
 ansible all -m ping
 ```
 
@@ -1533,7 +1534,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
   - name: swap off
     shell: |
       free -m
-      swapoff -a && sed -i '/ swap / s/^/#/' /etc/fstab
+      swapoff -a && sed -i '/ swap / s/^/#/' /etc/fstab  # Bu komutla RAM yetmedigi durumlarda Harddisten bir alani RAM yerine kullaniyor 
 
   - name: Enable the nodes to see bridged traffic
     shell: |
@@ -1583,7 +1584,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
   - name: change the Docker cgroup
     shell: |
       mkdir /etc/containerd
-      containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
+      containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1  # Burada eski versiyona gitmek icin bu degisiklikleri yapiyoruz.
       sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
 
   - name: Restart containerd and enable
@@ -1624,7 +1625,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
 
   - debug: msg='{{ join_command_for_workers.stdout.strip() }}'
 
-  - name: register join command for workers
+  - name: register join command for workers  # Bu islemi Alttaki role_worker da kullanmak sanal bir makina yarattik.
     add_host:
       name: "kube_master"
       worker_join: "{{ join_command_for_workers.stdout.strip() }}"
@@ -1641,8 +1642,8 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
   tasks:
 
   - name: Join workers to cluster
-    shell: "{{ hostvars['kube_master']['worker_join'] }}"
-    register: result_of_joining
+    shell: "{{ hostvars['kube_master']['worker_join'] }}" # Yukarida olusturdugumu burada calistiriyorum
+    register: result_of_joining   # Burada da ciktinin kaydini aliyoruz.
 
   - debug: msg='{{ result_of_joining.stdout }}'
 ```
@@ -1686,8 +1687,8 @@ terraform destroy -auto-approve -no-color
 PATH="$PATH:/usr/local/bin"
 ANS_KEYPAIR="petclinic-ansible-test-dev.key"
 AWS_REGION="us-east-1"
-aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}
-rm -rf ${ANS_KEYPAIR}
+aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${ANS_KEYPAIR}   # Amazon consoldakini sildi
+rm -rf ${ANS_KEYPAIR} # yereldekini sildi.
 ```
   * Click `Save`
 
@@ -1756,7 +1757,7 @@ services:
     ports:
      - 8888:8888
     labels:
-      kompose.image-pull-secret: "regcred"
+      kompose.image-pull-secret: "regcred"  # ECR a login olmak icin kullaniyoruz.
   discovery-server:
     image: "{{ .Values.IMAGE_TAG_DISCOVERY_SERVER }}"
     ports:
