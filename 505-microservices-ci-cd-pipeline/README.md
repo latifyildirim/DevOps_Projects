@@ -1931,7 +1931,7 @@ DNS_NAME: "petclinic.begis.link"
 
 ```bash
 aws s3api create-bucket --bucket petclinic-helm-charts-latif --region us-east-1
-aws s3api put-object --bucket petclinic-helm-charts-latif --key stable/myapp/
+aws s3api put-object --bucket petclinic-helm-charts-latif --key stable/myapp/ # Burada ``--key`` Yüklemek istediğiniz nesnenin anahtarını (key) belirtir. Bu, nesnenin S3 içindeki konumunu temsil eder. 
 ```
 
 * Install the helm-s3 plugin for Amazon S3.
@@ -1953,7 +1953,7 @@ exit
 * ``Initialize`` the Amazon S3 Helm repository.
 
 ```bash
-AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/stable/myapp 
+AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-latif/stable/myapp # Yukaridaki komut ile s3 de `HELM` repository olusturduk.
 ```
 
 * The command creates an ``index.yaml`` file in the target to track all the chart information that is stored at that location.
@@ -1961,16 +1961,15 @@ AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/sta
 * Verify that the ``index.yaml`` file was created.
 
 ```bash
-aws s3 ls s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
+aws s3 ls s3://petclinic-helm-charts-latif/stable/myapp/
 ```
 
 * Add the Amazon S3 repository to Helm on the client machine. 
 
 ```bash
 helm repo ls
-AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
+AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-latif/stable/myapp/
 ```
-
 * Update `version` and `appVersion` field of `k8s/petclinic_chart/Chart.yaml` file as below for testing.
 
 ```yaml
@@ -1988,7 +1987,7 @@ helm package petclinic_chart/
 * Store the local package in the Amazon S3 Helm repository.
 
 ```bash
-HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.1.tgz stable-petclinicapp
+HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.1.tgz stable-petclinicapp # Burada `AWS_REGION=us-east-1` ve `HELM_S3_MODE=3` ifadelerini `https://github.com/hypnoglow/helm-s3`e göre  yazdik.
 ```
 
 * Search for the Helm chart.
@@ -2019,7 +2018,7 @@ HELM_S3_MODE=3 AWS_REGION=us-east-1 helm s3 push ./petclinic_chart-0.0.2.tgz sta
 * Verify the updated Helm chart.
 
 ```bash
-helm repo update
+helm repo update # Gönderdigimiz imaji S3 den geri cekiyoruz. Pull islemi gibi.
 helm search repo stable-petclinicapp
 ```
 
@@ -2045,6 +2044,7 @@ stable-petclinicapp/petclinic_chart     0.0.1           0.1.0           A Helm c
 ```
 
 * In ``Chart.yaml``, ``set`` the `version` value to `HELM_VERSION` in Chart.yaml for automation in jenkins pipeline.
+* Bu yukarida `HELM_VERSION` i belirleyerek Jenkins her calistigindaki ``Build`` örnek `#16` sayisini aliyor. Bunu daha sonra atayacagiz
 
 * Commit the change, then push the script to the remote repo.
 
@@ -2196,7 +2196,7 @@ aws ecr create-repository \
       kubectl create secret generic regcred -n petclinic-dev \
         --from-file=.dockerconfigjson=/home/ubuntu/.docker/config.json \
         --type=kubernetes.io/dockerconfigjson
-      AWS_REGION=$AWS_REGION helm repo add stable-petclinic s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
+      AWS_REGION=$AWS_REGION helm repo add stable-petclinic s3://petclinic-helm-charts-latif/stable/myapp/
       AWS_REGION=$AWS_REGION helm repo update
       AWS_REGION=$AWS_REGION helm upgrade --install \
         petclinic-app-release stable-petclinic/petclinic_chart --version ${BUILD_NUMBER} \
