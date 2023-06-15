@@ -1876,10 +1876,17 @@ kompose convert -f docker-compose.yml -o petclinic_chart/templates
 
 ```yaml
 # for discovery server
+      # Sistem  ``initContainers`` i görünce önce bunu calistiriyor.
+      # Diger islemler bekliyor
       initContainers:
         - name: init-config-server
           image: busybox
           command: ['sh', '-c', 'until nc -z config-server:8888; do echo waiting for config-server; sleep 2; done;']
+          # '-c' kullanarak iki veya daha fazla komutu ardışık olarak çalıştırabilirsiniz
+          # `z` Komutu ile config serveri bekliyor.
+          # `until` bekle
+          # `nc` komutu (netcat), ağ bağlantılarını yönetmek için kullanılan bir araçtır.
+
 # for admin-server, api-gateway, customers-service, hystrix-dashboard, vets-service and visits service
       initContainers:
         - name: init-discovery-server
@@ -1910,18 +1917,21 @@ IMAGE_TAG_ADMIN_SERVER: "${IMAGE_TAG_ADMIN_SERVER}"
 IMAGE_TAG_HYSTRIX_DASHBOARD: "${IMAGE_TAG_HYSTRIX_DASHBOARD}"
 IMAGE_TAG_GRAFANA_SERVICE: "${IMAGE_TAG_GRAFANA_SERVICE}"
 IMAGE_TAG_PROMETHEUS_SERVICE: "${IMAGE_TAG_PROMETHEUS_SERVICE}"
-DNS_NAME: "DNS Name of your application"
+DNS_NAME: "petclinic.begis.link"
+# Buradaki degerleri sub.env komutu ile dinamik bir Environment yapiyoruz
+# Yani Jenkins de ${} in icine girdigimiz degerleri rahatlikla kullaniriz.
+# Tekrar tekrar source koda gitmemiz gerekmez.
 ```
 
 ### Set up a Helm v3 chart repository in Amazon S3
 
 * This pattern helps you to manage Helm v3 charts efficiently by integrating the Helm v3 repository into Amazon Simple Storage Service (Amazon S3) on the Amazon Web Services (AWS) Cloud. (https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/set-up-a-helm-v3-chart-repository-in-amazon-s3.html)
 
-* Create an ``S3 bucket`` for Helm charts. In the bucket, create a ``folder`` called ``stable/myapp``. The example in this pattern uses s3://petclinic-helm-charts-<put-your-name>/stable/myapp as the target chart repository.
+* Create an ``S3 bucket`` for Helm charts. In the bucket, create a ``folder`` called ``stable/myapp``. The example in this pattern uses s3://petclinic-helm-charts-latif/stable/myapp as the target chart repository.
 
 ```bash
-aws s3api create-bucket --bucket petclinic-helm-charts-<put-your-name> --region us-east-1
-aws s3api put-object --bucket petclinic-helm-charts-<put-your-name> --key stable/myapp/
+aws s3api create-bucket --bucket petclinic-helm-charts-latif --region us-east-1
+aws s3api put-object --bucket petclinic-helm-charts-latif --key stable/myapp/
 ```
 
 * Install the helm-s3 plugin for Amazon S3.
