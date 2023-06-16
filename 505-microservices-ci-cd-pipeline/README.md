@@ -2079,7 +2079,9 @@ docker run --rm -v $HOME/.m2:/root/.m2 -v $WORKSPACE:/app -w /app maven:3.6-open
 
 ```bash
 MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-admin-server/target/maven-archiver/pom.properties && echo $version)
+# burada  ``pom.properties`` u sorce komutu ile calistirarak veriable olarak atiyoruz ve sonrasinda version u bash kabugundan okuyarak altta kullaniyoruz
 export IMAGE_TAG_ADMIN_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:admin-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+# ``BUILD_NUMBER `` ve diger variable leri buradan bakabiliriz http://52.206.179.236:8080/env-vars.html/
 MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-api-gateway/target/maven-archiver/pom.properties && echo $version)
 export IMAGE_TAG_API_GATEWAY="${ECR_REGISTRY}/${APP_REPO_NAME}:api-gateway-v${MVN_VERSION}-b${BUILD_NUMBER}"
 MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-config-server/target/maven-archiver/pom.properties && echo $version)
@@ -2176,23 +2178,23 @@ aws ecr create-repository \
 - hosts: role_master
   tasks:
 
-  - name: Create .docker folder
+  - name: Create .docker folder  # ECR repo olusunca .docker dosyasi olusuyordu. 
     file:
-      path: /home/ubuntu/.docker
+      path: /home/ubuntu/.docker # Burada amacimiz config dosyasini cekmeye calisiyoruz
       state: directory
-      mode: '0755'
+      mode: '0755' # bu dosyaya yetki veriyoruz.
 
-  - name: copy the docker config file
+  - name: copy the docker config file 
     become: yes
     copy: 
-      src: $JENKINS_HOME/.docker/config.json
+      src: $JENKINS_HOME/.docker/config.json    
       dest: /home/ubuntu/.docker/config.json
 
   - name: deploy petclinic application
     shell: |
-      helm plugin install https://github.com/hypnoglow/helm-s3.git
+      helm plugin install https://github.com/hypnoglow/helm-s3.git  # HELM i daha önce kurmustum. Burada Plugin kuruyoruz 
       kubectl create ns petclinic-dev
-      kubectl delete secret regcred -n petclinic-dev || true
+      kubectl delete secret regcred -n petclinic-dev || true # Burada `regcred` k8s.petclinic_chart.templates altinda 
       kubectl create secret generic regcred -n petclinic-dev \
         --from-file=.dockerconfigjson=/home/ubuntu/.docker/config.json \
         --type=kubernetes.io/dockerconfigjson
@@ -2231,9 +2233,10 @@ driver.close()
 - hosts: all
   tasks:
   - name: run dummy selenium job
-    shell: "docker run --rm -v {{ workspace }}:{{ workspace }} -w {{ workspace }} clarusway/selenium-py-chrome:latest python {{ item }}"
-    with_fileglob: "{{ workspace }}/selenium-jobs/dummy*.py"
-    register: output
+    shell: "docker run --rm -v {{ workspace }}:{{ workspace }} -w {{ workspace }} clarusway/selenium-py-chrome:latest python {{ item }}" # Bütün dosyalari  calistir.
+    # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fileglob_lookup.html
+    with_fileglob: "{{ workspace }}/selenium-jobs/dummy*.py" # Burada yukaridaki icin kisitlama yapiyor.
+    register: output # ciktiyi yazdirip asssagida kullaniyorum.
   
   - name: show results
     debug: msg="{{ item.stdout }}"
