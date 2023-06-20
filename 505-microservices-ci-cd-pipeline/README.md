@@ -2857,6 +2857,9 @@ pipeline {
         stage('Prepare Tags for Docker Images') {
             steps {
                 echo 'Preparing Tags for Docker Images'
+                //  Assagisi manuel olarak girildi cünkü GROOVY dilinde EXPORT calismiyor,
+                // cünkü bizim Linux makinemizde EXPORT ile yazdik schell komutlarini. 
+                // Bu yüzden GROOVY de  `env.IMAGE_TAG_ADMIN_SERVER` gibi  giriyoruz.  Bu calistigimiz diger `stage` lerde kullanabilelim..
                 script {
                     MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-admin-server/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
                     env.IMAGE_TAG_ADMIN_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:admin-server-qa-v${MVN_VERSION}-b${BUILD_NUMBER}"
@@ -2906,6 +2909,7 @@ pipeline {
         }
     }
 }
+
 ```
 
 - Commit the change, then push the script to the remote repo.
