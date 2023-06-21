@@ -3085,7 +3085,7 @@ git checkout feature/msp-23
     * Allow SSH protocol (TCP on port 22) to any node IP from a node created using Node Driver.
 
     * Allow HTTP protocol (TCP on port 80) to all IP for getting updates.
-    
+    * https://ranchermanager.docs.rancher.com/v2.5/getting-started/installation-and-upgrade/installation-requirements/port-requirements
     * Allow HTTPS protocol (TCP on port 443) to `35.160.43.145/32`, `35.167.242.46/32`, `52.33.59.17/32` for catalogs of `git.rancher.io`.
 
     * Allow TCP on port 2376 to any node IP from a node created using Node Driver for Docker machine TLS port.
