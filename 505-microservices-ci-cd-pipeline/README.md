@@ -3119,6 +3119,7 @@ sudo apt-get install \
   gnupg \
   lsb-release
 sudo mkdir -p /etc/apt/keyrings
+# Assagidaki komutu calistirirken hata aldigimiz icin ``outband`` i heryere actik
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 # Use the following command to set up the stable repository
 echo \
@@ -3195,8 +3196,8 @@ rke --version
 
 ```yml
 nodes:
-  - address: 172.31.82.64                # Change with the Private Ip of rancher server
-    internal_address: 172.31.82.64       # Change with the Private Ip of rancher server
+  - address: 172.31.20.206               # Change with the Private Ip of rancher server
+    internal_address: 172.31.20.206      # Change with the Private Ip of rancher server
     user: ubuntu
     role:
       - controlplane
@@ -3271,7 +3272,7 @@ kubectl create namespace cattle-system
 ```bash
 helm install rancher rancher-latest/rancher \
   --namespace cattle-system \
-  --set hostname=rancher.clarusway.us \
+  --set hostname=rancher.begis.link \
   --set tls=external \
   --set replicas=1 \
   --set global.cattle.psp.enabled=false
@@ -3289,6 +3290,7 @@ kubectl -n cattle-system get pods
 * If bootstrap pod is not initialized or you forget your admin password you can use the below command to reset your password.
 
 ```bash
+# Eger sifremizi unutursak alttaki komutla resetleyebiliriz.
 export KUBECONFIG=~/.kube/config
 kubectl --kubeconfig $KUBECONFIG -n cattle-system exec $(kubectl --kubeconfig $KUBECONFIG -n cattle-system get pods -l app=rancher | grep '1/1' | head -1 | awk '{ print $1 }') -- reset-password
 ```
