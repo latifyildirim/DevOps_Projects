@@ -3,7 +3,7 @@
 myami = "ami-026ebd4cfe2c043b2"
 mykey = "latif"
 tags = ["postgresql", "nodejs", "react"]
-instancetype = "t2.micro"
+instancetype = ["t2.micro", "t2.micro", "t3a.medium"]
 controlinstancetype = "t3a.medium"
 num = 3
 region = "us-east-1"
