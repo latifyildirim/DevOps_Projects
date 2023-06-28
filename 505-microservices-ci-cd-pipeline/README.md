@@ -3176,7 +3176,7 @@ Availability Zones  : Select AZs of RKE instances
 Target group        : `petclinic-rancher-http-80-tg` target group
 
 <!-- Secure listener settings -->
-From ACM            : *.clarusway.us   # change with your dns name
+From ACM            : *.begis.link   # change with your dns name
 ```
 
 * Configure ALB Listener of HTTP on `Port 80` to redirect traffic to HTTPS on `Port 443`.
@@ -3683,7 +3683,8 @@ pipeline {
 }
 ```
 
-* Create an `A` record of `staging-petclinic.clarusway.us` in your hosted zone (in our case `clarusway.us`) using AWS Route 53 domain registrar and bind it to your `petclinic cluster`.
+* Create an `A` record of `staging-petclinic.clarusway.us` in your hosted zone (in our case `clarusway.us`) using AWS Route 53 domain registrar and bind it to your `petclinic cluster`. 
+* ###``Bu islemden sonra values-template.yaml dosyasini degistirmeliyiz``
 
 * Create a Staging ``Pipeline`` on Jenkins with name of `petclinic-staging` with following script and configure a `cron job` to trigger the pipeline every Sundays at midnight (`59 23 * * 0`) on `release` branch. `Petclinic staging pipeline` should be deployed on permanent staging-environment on `petclinic-cluster` Kubernetes cluster under `petclinic-staging-ns` namespace.
 
@@ -3698,6 +3699,14 @@ pipeline {
       Branch Specifier (blank for 'any'): */release
 - Pipeline:
       Script Path: jenkins/jenkinsfile-petclinic-staging
+# Bu islemden sonra Wb sitesini göremiyoruz. Bu yüzden Rancher servere gelip ``Policy`` altinda ``Network Policies`` altinda
+
+# spec:
+#   ingress:
+#     - {}
+
+# böyle gärünmeli
+
 ```
 * Click `save`.
 * Click `Build Now`
@@ -3848,7 +3857,8 @@ docker push "${IMAGE_TAG_PROMETHEUS_SERVICE}"
 echo 'Deploying App on Kubernetes'
 envsubst < k8s/petclinic_chart/values-template.yaml > k8s/petclinic_chart/values.yaml
 sed -i s/HELM_VERSION/${BUILD_NUMBER}/ k8s/petclinic_chart/Chart.yaml
-AWS_REGION=$AWS_REGION helm repo add stable-petclinic s3://petclinic-helm-charts-<put-your-name>/stable/myapp/ || echo "repository name already exists"
+# Aragidaki S3 bucket name önemli
+AWS_REGION=$AWS_REGION helm repo add stable-petclinic s3://petclinic-helm-charts-latif/stable/myapp/ || echo "repository name already exists"
 AWS_REGION=$AWS_REGION helm repo update
 helm package k8s/petclinic_chart
 AWS_REGION=$AWS_REGION helm s3 push --force petclinic_chart-${BUILD_NUMBER}.tgz stable-petclinic
@@ -3894,7 +3904,7 @@ metadata:
   name: mysql-server
 spec:
   type: ExternalName
-  externalName: petclinic.cbanmzptkrzf.us-east-1.rds.amazonaws.com # Change this line with the endpoint of your RDS.
+  externalName: petclinic.c33ndfedld89.us-east-1.rds.amazonaws.com # Change this line with the endpoint of your RDS.
 ```
 
 * Prepare a Jenkinsfile for `petclinic-prod` pipeline and save it as `jenkinsfile-petclinic-prod` under `jenkins` folder.
@@ -3996,7 +4006,7 @@ git push origin main
 - job name: petclinic-prod
 - job type: pipeline
 - Source Code Management: Git
-      Repository URL: https://github.com/[your-github-account]/petclinic-microservices.git
+      Repository URL: https://github.com/latifyildirim/Petclinic_Microservices_With_DB.git
 - Branches to build:
       Branch Specifier (blank for 'any'): */main
 - Build triggers: GitHub hook trigger for GITScm polling
@@ -4077,7 +4087,7 @@ spec:
     # The ACME server URL
     server: https://acme-v02.api.letsencrypt.org/directory
     # Email address used for ACME registration
-    email: callahan@clarusway.com
+    email: lyildirim.3017@gmail.com
     # Name of a secret used to store the ACME account private key
     privateKeySecretRef:
       name: letsencrypt-prod
@@ -4115,11 +4125,11 @@ metadata:
 spec:
   tls:
   - hosts:
-    - petclinic.clarusway.us
+    - petclinic.begis.link
     secretName: petclinic-tls
 ```
 
-* Check and verify that the TLS(SSL) certificate created and successfully issued to `petclinic.clarusway.us` by checking URL of `https://petclinic.clarusway.us`
+* Check and verify that the TLS(SSL) certificate created and successfully issued to `petclinic.begis.link` by checking URL of `https://petclinic.begis.link`
 
 * Commit the change, then push the tls script to the remote repo.
 
