@@ -1,31 +1,34 @@
-# GitLab Runner'ın Docker Compose ile Ubuntu Makinede Kurulumu
+# Kapsamlı GitLab Runner Kurulum Kılavuzu
 
 ## İçindekiler
-1. Giriş
-2. Gereksinimler
-3. Docker ve Docker Compose Kurulumu
-4. GitLab Runner Kurulumu
-5. Runner Yapılandırması
-6. CI/CD Pipeline Konfigürasyonu
-7. Tomcat Dockerfile Açıklaması
-8. Tüm Sistemi Çalıştırma
-9. Sorun Giderme
-10. Sonuç
+1. [Giriş](#giriş)
+2. [Gereksinimler](#gereksinimler)
+3. [Docker ve Docker Compose Kurulumu](#docker-ve-docker-compose-kurulumu)
+4. [Runner Yapılandırması](#runner-yapılandırması)
+5. [GitLab Runner Kurulumu](#gitlab-runner-kurulumu)
+6. [GitLab'da Runner Ekleme ve Token Alma](#gitlabda-runner-ekleme-ve-token-alma)
+7. [CI/CD Pipeline Konfigürasyonu ve Değişkenler](#cicd-pipeline-konfigürasyonu-ve-değişkenler)
+8. [Dockerfile Oluşturma](#dockerfile-oluşturma)
+9. [Pipeline'ı Test Etme](#pipelineı-test-etme)
+10. [Sorun Giderme](#sorun-giderme)
+11. [Genel Bakım ve İyi Uygulamalar](#genel-bakım-ve-iyi-uygulamalar)
+12. [İleri Seviye Özelleştirmeler](#i̇leri-seviye-özelleştirmeler)
+13. [Sonuç](#sonuç)
 
-## 1. Giriş
+## Giriş
 
-Bu dokümantasyon, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makinede nasıl kurulacağını adım adım açıklamaktadır. Bu kılavuz, GitLab CI/CD pipeline'larınızı çalıştırmak için güvenli ve izole bir ortam oluşturmanıza yardımcı olacaktır.
+Bu kılavuz, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makinede nasıl kurulacağını adım adım açıklamaktadır. Hiç deneyimi olmayan kullanıcılar için hazırlanmış olup, GitLab projeleriniz için otomatik build, test ve deployment imkanı sağlayan bir CI/CD ortamı oluşturmanıza yardımcı olacaktır.
 
-## 2. Gereksinimler
+## Gereksinimler
 
 - Ubuntu 20.04 LTS veya daha yeni bir sürüm
 - Sudo yetkilerine sahip bir kullanıcı
 - İnternet bağlantısı
 - GitLab hesabı ve bir GitLab projesi
 
-## 3. Docker ve Docker Compose Kurulumu
+## Docker ve Docker Compose Kurulumu
 
-### 3.1 Docker Kurulumu
+### Docker Kurulumu
 
 1. Sistem paketlerini güncelleyin:
    ```
@@ -62,7 +65,7 @@ Bu dokümantasyon, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makined
 
 7. Değişikliklerin etkili olması için oturumu kapatıp açın veya sistemi yeniden başlatın.
 
-### 3.2 Docker Compose Kurulumu
+### Docker Compose Kurulumu
 
 1. Docker Compose'un en son sürümünü indirin:
    ```
@@ -79,58 +82,78 @@ Bu dokümantasyon, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makined
    docker-compose --version
    ```
 
-## 4. GitLab Runner Kurulumu
+## GitLab Runner Kurulumu
 
-1. Proje dizininde bir `docker-compose.yml` dosyası oluşturun:
+1. GitLab Runner için yeni bir dizin oluşturun:
    ```
-   mkdir gitlab-runner && cd gitlab-runner
+   mkdir gitlab-runner-1 && cd gitlab-runner-1
+   ```
+
+2. Bu dizinde `docker-compose.yml` adlı bir dosya oluşturun:
+   ```
    nano docker-compose.yml
    ```
 
-2. Aşağıdaki içeriği `docker-compose.yml` dosyasına ekleyin:
+3. Açılan editöre aşağıdaki içeriği yapıştırın:
+   ```yaml
+   version: '3'
+   services:
+     gitlab-runner:
+       image: gitlab/gitlab-runner:latest
+       container_name: gitlab-runner-1
+       restart: always
+       volumes:
+         - ./config:/etc/gitlab-runner
+         - /var/run/docker.sock:/var/run/docker.sock 
+       security_opt:
+         - no-new-privileges
+       environment:
+         HTTP_PROXY: http://proxy.devops.it:8080
+         HTTPS_PROXY: http://proxy.devops.it:8080
+         NO_PROXY: localhost,127.0.0.1,docker
+   ```
+   Not: Proxy ayarlarını kendi ortamınıza göre değiştirin veya gerekli değilse environment bölümünü tamamen kaldırın.
 
-```yaml
-version: '3'
-services:
-  gitlab-runner:
-    image: gitlab/gitlab-runner:latest
-    container_name: gitlab-runner
-    restart: always
-    volumes:
-      - ./config:/etc/gitlab-runner
-      - /var/run/docker.sock:/var/run/docker.sock 
-    security_opt:
-      - no-new-privileges
-    environment:
-      HTTP_PROXY: http://proxy.devops.it:8080
-      HTTPS_PROXY: http://proxy.devops.it:8080
-      NO_PROXY: localhost,127.0.0.1,docker
-```
+4. Dosyayı kaydetmek için Ctrl+X, ardından Y ve Enter tuşlarına basın.
 
-FOTO-1: docker-compose.yml dosyasının içeriğini gösteren ekran görüntüsü
-![image](https://github.com/user-attachments/assets/57860763-1168-4caf-b72d-7bac9374eb97)
-
-3. GitLab Runner'ı başlatın:
+5. GitLab Runner'ı başlatın:
    ```
    docker-compose up -d
    ```
 
-FOTO-2: GitLab Runner'ın başarıyla başlatıldığını gösteren terminal çıktısı
-![image](https://github.com/user-attachments/assets/4d87e3a9-316e-4c6d-bfa9-937507c6b27e)
+6. Runner'ın başarıyla çalıştığını kontrol edin:
+   ```
+   docker ps
+   ```
 
-## 5. Runner Yapılandırması
+## GitLab'da Runner Ekleme ve Token Alma
+
+1. GitLab projenize gidin ve sol menüden "Settings" > "CI/CD" seçeneğine tıklayın.
+2. Sayfayı aşağı kaydırın ve "Runners" bölümünü bulun.
+3. "New project runner" butonuna tıklayın.
+4. Runner için bir açıklama girin (örneğin, "DevOps-3 Runner").
+5. Tags kısmına "devops-3" yazın (bu, .gitlab-ci.yml dosyasında belirttiğimiz tag ile eşleşmelidir).
+6. "Run untagged jobs" seçeneğini işaretleyin.
+7. "Lock to current projects" seçeneğini işaretleyin.
+8. "Create runner" butonuna tıklayın.
+9. Oluşturulan runner'ın detaylarında gösterilen registration token'ı kopyalayın. Bu token'ı runner'ı kaydederken kullanacaksınız.
+![image](https://github.com/user-attachments/assets/7ddda22d-a2d0-4406-9763-d4ec76cfe73a)
+
+## Runner Yapılandırması
 
 1. Runner'ı kaydetmek için aşağıdaki komutu çalıştırın:
    ```
-   docker exec -it gitlab-runner gitlab-runner register
+   docker exec -it gitlab-runner-1 gitlab-runner register
    ```
 
 2. Kayıt işlemi sırasında aşağıdaki bilgileri girin:
-   - GitLab instance URL: https://gitlab.devops.it
-   - Registration token: (GitLab projenizden alın)
-   - Description: devops
-   - Tags: devops
+   - GitLab instance URL: https://gitlab.devops.it (veya sizin GitLab URL'niz)
+   - Registration token: (GitLab projenizden alacaksınız)
+   - Description: DevOps Runner (veya istediğiniz bir açıklama)
    - Executor: docker
+   - Docker image: registry.devops.it/devops/containers/docker:latest (veya projeniz için uygun bir etiket)
+![image](https://github.com/user-attachments/assets/79ff0b1d-d23b-497d-8ba7-44c8faa312dc)
+![image](https://github.com/user-attachments/assets/2e5dc2d3-f2da-497a-9b3b-f6780eb8dbcc)
 
 3. Kaydı tamamladıktan sonra, `config.toml` dosyasını düzenleyin:
    ```
@@ -138,52 +161,125 @@ FOTO-2: GitLab Runner'ın başarıyla başlatıldığını gösteren terminal ç
    ```
 
 4. Dosyanın içeriğini aşağıdaki gibi güncelleyin:
-
-```toml
-[[runners]]
-  name = "devops"
-  url = "https://gitlab.devops.it"
-  id = 13
-  token = "gast-123afasd-Fs"
-  token_obtained_at = 0001-01-01T00:00:00Z
-  token_expires_at = 0001-01-01T00:00:00Z
-  executor = "docker"
-  environment = ["HTTP_PROXY=http://proxy.devops.it:8080", "HTTPS_PROXY=http://proxy.devops.it:8080", "NO_PROXY=localhost,127.0.0.1,docker"]
-  [runners.docker]
-    tls_verify = false
-    image = "registry.devops.it/devops/containers/docker:latest"
-    privileged = true
-    disable_entrypoint_overwrite = false
-    oom_kill_disable = false
-    disable_cache = false 
-    volumes = ["/cache", "/root/.m2:/root/.m2:rw"]
-    pull_policy = ["if-not-present"]
-    shm_size = 0
-    network_mtu = 0
-```
-
-FOTO-3: Düzenlenmiş config.toml dosyasının içeriğini gösteren ekran görüntüsü
-![image](https://github.com/user-attachments/assets/5b5a224a-11ad-4b7b-aad3-e8ef0f4026fb)
+   ```toml
+   concurrent = 1
+   check_interval = 0
+   shutdown_timeout = 0
+   
+   [session_server]
+     session_timeout = 1800
+   
+   [[runners]]
+     name = "DevOps Runner"
+     url = "https://gitlab.devops.it"
+     id = 24
+     token = "glrt--EsPzxxxxxxxxxxxxxx"
+     token_obtained_at = 2024-09-17T12:52:43Z
+     token_expires_at = 0001-01-01T00:00:00Z
+     executor = "docker"
+     environment = ["HTTP_PROXY=http://proxy.devops.it:8080", "HTTPS_PROXY=http://proxy.devops.it:8080", "NO_PROXY=localhost,127.0.0.1,docker"]
+     [runners.docker]
+       tls_verify = false
+       image = "registry.devops.it/devops/containers/docker:latest"
+       privileged = true
+       disable_entrypoint_overwrite = false
+       oom_kill_disable = false
+       disable_cache = false 
+       volumes = ["/cache", "/root/.m2:/root/.m2:rw"]
+       pull_policy = ["if-not-present"]
+       shm_size = 0
+       network_mtu = 0
+   ```
+   Not: URL, token ve diğer değerleri kendi ortamınıza göre ayarlayın.
 
 5. Runner'ı yeniden başlatın:
    ```
    docker-compose restart
    ```
 
-## 6. CI/CD Pipeline Konfigürasyonu
+## CI/CD Pipeline Konfigürasyonu ve Değişkenler
 
-GitLab projenizde `.gitlab-ci.yml` dosyası oluşturun ve aşağıdaki içeriği ekleyin:
+1. CI/CD değişkenlerini tanımlamak için, GitLab projenizde "Settings" > "CI/CD" bölümüne gidin.
+
+2. "Variables" bölümünü bulun ve "Expand" butonuna tıklayın.
+
+3. "Add variable" butonuna tıklayarak aşağıdaki değişkenleri ekleyin:
+
+   - INTERN_CI_REGISTRY:
+     * Key: INTERN_CI_REGISTRY
+     * Value: registry.devops.it (veya kendi iç Docker registry'nizin adresi)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretlemeyin
+
+   - CI_REGISTRY_PASSWORD:
+     * Key: CI_REGISTRY_PASSWORD
+     * Value: (Docker registry'niz için kullanıcı şifresi)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretleyin
+
+   - CI_REGISTRY_USER:
+     * Key: CI_REGISTRY_USER
+     * Value: (Docker registry'niz için kullanıcı adı)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretlemeyin
+
+   - APPLICATION_PROPERTIES:
+     * Key: APPLICATION_PROPERTIES
+     * Value: (Uygulamanızın properties dosyasının içeriği)
+     * Type: File
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretlemeyin
+
+   - SSH_PRIVATE_KEY:
+     * Key: SSH_PRIVATE_KEY
+     * Value: (Deployment için kullanılacak SSH özel anahtarı)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretleyin
+
+   - HOST:
+     * Key: HOST
+     * Value: (Deployment yapılacak sunucunun adresi)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretlemeyin
+
+   - USER:
+     * Key: USER
+     * Value: (Deployment için kullanılacak kullanıcı adı)
+     * Type: Variable
+     * Environment scope: All (default)
+     * Protect variable: İşaretleyin
+     * Mask variable: İşaretlemeyin
+
+4. Her değişken için "Add variable" butonuna tıklayarak kaydedin.
+
+Not: CI_REGISTRY, CI_PIPELINE_IID ve CI_REGISTRY_IMAGE değişkenleri GitLab tarafından otomatik olarak sağlanır, bunları manuel olarak tanımlamanıza gerek yoktur.
+
+5. GitLab projenizin ana sayfasına gidin.
+6. Sol üst köşedeki "+" simgesine tıklayın ve "New file" seçeneğini seçin.
+7. "File name" alanına `.gitlab-ci.yml` yazın.
+8. İçerik alanına aşağıdaki YAML kodunu yapıştırın:
 
 ```yaml
 default: 
   tags:
-    - devops
+    - devops-3
 
 variables: 
   DOCKER_TLS_CERTDIR: ""  
 
 services:
-  - name: $CI_REGISTRY/docker:dind
+  - name: $INTERN_CI_REGISTRY/docker:dind
     alias: docker 
 
 stages:
@@ -202,14 +298,14 @@ cache:
 
 build:
   stage: build 
-  image: $CI_REGISTRY/maven:latest
+  image: $INTERN_CI_REGISTRY/maven:latest
   script:
     - echo "$APPLICATION_PROPERTIES" > src/main/resources/application.properties
     - mvn clean install -DskipTests
 
 package-und-push:
   stage: package-und-push
-  image: $CI_REGISTRY/docker:latest
+  image: $INTERN_CI_REGISTRY/docker:latest
   <<: *docker-login
   script:
     - docker build -t $CI_REGISTRY_IMAGE:$CI_PIPELINE_IID -t $CI_REGISTRY_IMAGE:latest .
@@ -218,7 +314,7 @@ package-und-push:
 
 deploy:
   stage: deploy
-  image: $CI_REGISTRY/alpine:sshclient
+  image: $INTERN_CI_REGISTRY/alpine:sshclient
   before_script: 
     - eval $(ssh-agent -s) 
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
@@ -237,7 +333,7 @@ deploy:
 
 rollback:
   stage: rollback
-  image: $CI_REGISTRY/alpine:sshclient
+  image: $INTERN_CI_REGISTRY/alpine:sshclient
   before_script: 
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
@@ -256,9 +352,16 @@ rollback:
   when: manual
 ```
 
-## 7. Tomcat Dockerfile Açıklaması
+9. Sayfanın altındaki "Commit changes" butonuna tıklayın.
+![image](https://github.com/user-attachments/assets/25654872-7d91-48bd-b994-762ae3852c6b)
 
-Projenizin kök dizininde bir `Dockerfile` oluşturun ve aşağıdaki içeriği ekleyin:
+
+## Dockerfile Oluşturma
+
+1. GitLab projenizin ana sayfasına dönün.
+2. Yine "+" simgesine tıklayın ve "New file" seçeneğini seçin.
+3. "File name" alanına `Dockerfile` yazın (büyük 'D' ile başladığından emin olun).
+4. İçerik alanına aşağıdaki kodu yapıştırın:
 
 ```dockerfile
 FROM registry.devops.it/devops/containers/tomcat:latest
@@ -268,36 +371,96 @@ EXPOSE 8080
 CMD ["catalina.sh", "run"]
 ```
 
-Bu Dockerfile:
-1. Özel Tomcat imajını temel alır.
-2. Varsayılan webapps dizinini temizler.
-3. Derlenen WAR dosyasını Tomcat'in webapps dizinine kopyalar.
-4. 8080 portunu dışarıya açar.
-5. Tomcat'i başlatır.
+5. Sayfanın altındaki "Commit changes" butonuna tıklayın.
 
-## 8. Tüm Sistemi Çalıştırma
+## Pipeline'ı Test Etme
 
-1. GitLab projenize bir commit push'layın.
-2. GitLab arayüzünden CI/CD pipeline'ının başladığını doğrulayın.
-3. Pipeline aşamalarının başarıyla tamamlandığını gözlemleyin.
+1. GitLab projenizin ana sayfasına gidin.
+2. Herhangi bir dosyayı açın (örneğin, README.md) ve küçük bir değişiklik yapın.
+3. "Commit changes" butonuna tıklayarak değişikliği kaydedin.
+4. Sol menüden "CI/CD" > "Pipelines" seçeneğine tıklayın.
+5. En üstte yeni bir pipeline'ın başladığını göreceksiniz. Pipeline'ın durumunu gözlemleyin.
 
-FOTO-4: Başarılı bir pipeline çalışmasını gösteren GitLab CI/CD paneli ekran görüntüsü
-![image](https://github.com/user-attachments/assets/8fd98fdf-4a06-4234-af5b-95630739a1bc)
+Pipeline başarıyla tamamlanırsa, tebrikler! CI/CD sisteminiz çalışıyor demektir. Eğer hatalar alırsanız, bir sonraki bölümde bu hataları nasıl gidereceğinizi öğreneceksiniz.
 
-## 9. Sorun Giderme
+## Sorun Giderme
 
-- Runner bağlantı sorunları için:
-  - Proxy ayarlarını kontrol edin.
-  - GitLab URL'sinin doğru olduğundan emin olun.
-- Docker hataları için:
-  - Docker daemon'un çalıştığından emin olun: `sudo systemctl status docker`
-  - Docker socket'inin doğru monte edildiğini kontrol edin.
-- Pipeline hataları için:
-  - `.gitlab-ci.yml` dosyasının syntax'ını kontrol edin.
-  - Gerekli ortam değişkenlerinin tanımlandığından emin olun.
+Pipeline'ınızda hatalar oluşursa, aşağıdaki adımları izleyin:
 
-## 10. Sonuç
+1. Hata alan job'a tıklayarak detayları görüntüleyin.
+2. Hata mesajını dikkatlice okuyun. Genellikle sorunun ne olduğuna dair ipuçları içerir.
 
-Bu dokümantasyon, GitLab Runner'ı Docker Compose kullanarak Ubuntu makinenizde nasıl kuracağınızı, yapılandıracağınızı ve CI/CD pipeline'ınızı nasıl oluşturacağınızı adım adım gösterdi. Bu kurulum, projeniz için güvenli ve ölçeklenebilir bir CI/CD ortamı sağlayacaktır.
+Sık karşılaşılan sorunlar ve çözümleri:
 
-Herhangi bir sorunla karşılaşırsanız, lütfen GitLab dokümantasyonuna başvurun veya IT destek ekibinizle iletişime geçin.
+a) Docker Registry Bağlantı Sorunları:
+   - CI_REGISTRY_USER ve CI_REGISTRY_PASSWORD değişkenlerinin doğru tanımlandığından emin olun.
+   - INTERN_CI_REGISTRY değişkeninin doğru URL'yi içerdiğinden emin olun.
+
+b) SSH Bağlantı Sorunları:
+   - SSH_PRIVATE_KEY, HOST ve USER değişkenlerinin doğru tanımlandığından emin olun.
+   - Hedef sunucunun erişilebilir olduğunu kontrol edin.
+
+c) Build Hataları:
+   - APPLICATION_PROPERTIES değişkeninin doğru içeriğe sahip olduğunu kontrol edin.
+   - Projenizin bağımlılıklarının doğru yapılandırıldığından emin olun.
+
+d) Runner Bağlantı Sorunları:
+   - Runner'ın çalışır durumda olduğunu kontrol edin: `docker ps | grep gitlab-runner`
+   - Runner'ın GitLab'a kayıtlı olduğunu doğrulayın: GitLab > Settings > CI/CD > Runners
+
+e) Docker Compose Hataları:
+   - docker-compose.yml dosyasının syntax'ını kontrol edin.
+   - Docker ve Docker Compose'un en güncel sürümlerini kullandığınızdan emin olun.
+
+## Genel Bakım ve İyi Uygulamalar
+
+1. Düzenli Güncellemeler:
+   - GitLab Runner'ı düzenli olarak güncelleyin:
+     ```
+     docker-compose pull
+     docker-compose up -d
+     ```
+   - Docker ve Docker Compose'u güncel tutun:
+     ```
+     sudo apt update
+     sudo apt upgrade docker-ce docker-ce-cli containerd.io
+     ```
+
+2. Güvenlik:
+   - Hassas bilgileri (şifreler, API anahtarları) her zaman CI/CD değişkenleri olarak saklayın ve maskelemeyi unutmayın.
+   - Runner'ın çalıştığı makinenin güvenlik güncellemelerini düzenli olarak yapın.
+
+3. Performans İzleme:
+   - GitLab'ın Monitoring özelliklerini kullanarak Runner performansını izleyin.
+   - Gerekirse, daha güçlü bir makineye geçiş yapın veya birden fazla Runner kullanın.
+
+4. Yedekleme:
+   - Runner yapılandırma dosyalarını (`config.toml`) düzenli olarak yedekleyin.
+   - CI/CD değişkenlerinin bir kopyasını güvenli bir yerde saklayın.
+
+5. Dökümantasyon:
+   - Pipeline yapılandırmanızı ve özel gereksinimleri belgelendirin.
+   - Sorun giderme adımlarını ve çözümlerini kaydedin.
+
+## İleri Seviye Özelleştirmeler
+
+1. Paralel Job'lar:
+   - `.gitlab-ci.yml` dosyanızda paralel job'lar tanımlayarak build süresini kısaltın.
+
+2. Caching Stratejileri:
+   - Bağımlılıkları ve build artifactlerini cache'leyerek pipeline performansını artırın.
+
+3. Environment-Specific Deployments:
+   - Farklı ortamlar (dev, staging, production) için ayrı deployment job'ları oluşturun.
+
+4. Custom Docker Images:
+   - Projenize özel Docker imajları oluşturarak build sürecini hızlandırın.
+
+5. GitLab Auto DevOps:
+   - GitLab'ın Auto DevOps özelliklerini keşfedin ve uygun olanları entegre edin.
+
+## Sonuç
+
+Tebrikler! Artık GitLab Runner'ı başarıyla kurmuş, yapılandırmış ve bir CI/CD pipeline'ı oluşturmuş bulunuyorsunuz. Bu sistem, yazılım geliştirme sürecinizi otomatikleştirmenize ve hızlandırmanıza yardımcı olacaktır.
+
+Unutmayın, CI/CD bir yolculuktur. Sürekli öğrenmeye ve sisteminizi iyileştirmeye devam edin. Karşılaştığınız zorlukları ve çözümleri ekibinizle paylaşın. İyi şanlar ve mutlu kodlamalar!
