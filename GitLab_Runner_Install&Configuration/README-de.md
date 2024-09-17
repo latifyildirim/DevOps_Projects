@@ -137,8 +137,8 @@ Dieser Leitfaden erklärt Schritt für Schritt, wie man GitLab Runner mit Docker
 6. Klicken Sie auf "Create runner".
 7. Kopieren Sie das angezeigte Registrierungs-Token. Sie werden dieses Token verwenden, um den Runner zu registrieren.
 
-Screenshot des GitLab-Bildschirms zum Hinzufügen eines neuen Runners
-![image](https://github.com/user-attachments/assets/9f2dcc23-2f8a-47c8-8b03-e98f9b2ed755)
+   Screenshot des GitLab-Bildschirms zum Hinzufügen eines neuen Runners
+   ![image](https://github.com/user-attachments/assets/9f2dcc23-2f8a-47c8-8b03-e98f9b2ed755)
 
 ## Erstellung der Dockerfile
 
@@ -171,11 +171,11 @@ CMD ["catalina.sh", "run"]
    - Executor: docker
    - Docker image: registry.devops.it/devops/containers/docker:latest (oder ein passendes Image für Ihr Projekt)
 
-Screenshot des Runner-Registrierungsprozesses im Terminal
-![image](https://github.com/user-attachments/assets/79ff0b1d-d23b-497d-8ba7-44c8faa312dc)
-
-Fortsetzung des Runner-Registrierungsprozesses
-![image](https://github.com/user-attachments/assets/2e5dc2d3-f2da-497a-9b3b-f6780eb8dbcc)
+   Screenshot des Runner-Registrierungsprozesses im Terminal
+   ![image](https://github.com/user-attachments/assets/79ff0b1d-d23b-497d-8ba7-44c8faa312dc)
+   
+   Fortsetzung des Runner-Registrierungsprozesses
+   ![image](https://github.com/user-attachments/assets/2e5dc2d3-f2da-497a-9b3b-f6780eb8dbcc)
 
 3. Bearbeiten Sie nach Abschluss der Registrierung die `config.toml`-Datei:
    ```
@@ -376,8 +376,8 @@ rollback:
 
 9. Klicken Sie auf "Commit changes" am unteren Rand der Seite.
 
-Screenshot der .gitlab-ci.yml-Datei in GitLab
-![image](https://github.com/user-attachments/assets/25654872-7d91-48bd-b994-762ae3852c6b)
+   Screenshot der .gitlab-ci.yml-Datei in GitLab
+   ![image](https://github.com/user-attachments/assets/25654872-7d91-48bd-b994-762ae3852c6b)
 
 ## Testen der Pipeline
 
