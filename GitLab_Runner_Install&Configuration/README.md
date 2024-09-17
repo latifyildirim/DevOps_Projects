@@ -7,8 +7,8 @@
 4. [Runner Yapılandırması](#runner-yapılandırması)
 5. [GitLab Runner Kurulumu](#gitlab-runner-kurulumu)
 6. [GitLab'da Runner Ekleme ve Token Alma](#gitlabda-runner-ekleme-ve-token-alma)
-7. [CI/CD Pipeline Konfigürasyonu ve Değişkenler](#cicd-pipeline-konfigürasyonu-ve-değişkenler)
-8. [Dockerfile Oluşturma](#dockerfile-oluşturma)
+7. [Dockerfile Oluşturma](#dockerfile-oluşturma)
+8. [CI/CD Pipeline Konfigürasyonu ve Değişkenler](#cicd-pipeline-konfigürasyonu-ve-değişkenler)
 9. [Pipeline'ı Test Etme](#pipelineı-test-etme)
 10. [Sorun Giderme](#sorun-giderme)
 11. [Genel Bakım ve İyi Uygulamalar](#genel-bakım-ve-iyi-uygulamalar)
@@ -195,6 +195,23 @@ Bu kılavuz, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makinede nas�
    docker-compose restart
    ```
 
+## Dockerfile Oluşturma
+
+1. GitLab projenizin ana sayfasına dönün.
+2. Yine "+" simgesine tıklayın ve "New file" seçeneğini seçin.
+3. "File name" alanına `Dockerfile` yazın (büyük 'D' ile başladığından emin olun).
+4. İçerik alanına aşağıdaki kodu yapıştırın:
+
+```dockerfile
+FROM registry.devops.it/devops/containers/tomcat:latest
+RUN rm -rf /usr/local/tomcat/webapps/* 
+COPY target/*.war /usr/local/tomcat/webapps/dx4api.war
+EXPOSE 8080 
+CMD ["catalina.sh", "run"]
+```
+
+5. Sayfanın altındaki "Commit changes" butonuna tıklayın.
+
 ## CI/CD Pipeline Konfigürasyonu ve Değişkenler
 
 1. CI/CD değişkenlerini tanımlamak için, GitLab projenizde "Settings" > "CI/CD" bölümüne gidin.
@@ -353,24 +370,6 @@ rollback:
 9. Sayfanın altındaki "Commit changes" butonuna tıklayın.
 
 ![image](https://github.com/user-attachments/assets/25654872-7d91-48bd-b994-762ae3852c6b)
-
-
-## Dockerfile Oluşturma
-
-1. GitLab projenizin ana sayfasına dönün.
-2. Yine "+" simgesine tıklayın ve "New file" seçeneğini seçin.
-3. "File name" alanına `Dockerfile` yazın (büyük 'D' ile başladığından emin olun).
-4. İçerik alanına aşağıdaki kodu yapıştırın:
-
-```dockerfile
-FROM registry.devops.it/devops/containers/tomcat:latest
-RUN rm -rf /usr/local/tomcat/webapps/* 
-COPY target/*.war /usr/local/tomcat/webapps/dx4api.war
-EXPOSE 8080 
-CMD ["catalina.sh", "run"]
-```
-
-5. Sayfanın altındaki "Commit changes" butonuna tıklayın.
 
 ## Pipeline'ı Test Etme
 
