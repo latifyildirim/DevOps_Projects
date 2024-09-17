@@ -133,11 +133,9 @@ Bu kılavuz, GitLab Runner'ın Docker Compose kullanılarak Ubuntu makinede nas�
 3. "New project runner" butonuna tıklayın.
 4. Runner için bir açıklama girin (örneğin, "DevOps-3 Runner").
 5. Tags kısmına "devops-3" yazın (bu, .gitlab-ci.yml dosyasında belirttiğimiz tag ile eşleşmelidir).
-6. "Run untagged jobs" seçeneğini işaretleyin.
-7. "Lock to current projects" seçeneğini işaretleyin.
-8. "Create runner" butonuna tıklayın.
-9. Oluşturulan runner'ın detaylarında gösterilen registration token'ı kopyalayın. Bu token'ı runner'ı kaydederken kullanacaksınız.
-![image](https://github.com/user-attachments/assets/7ddda22d-a2d0-4406-9763-d4ec76cfe73a)
+6. "Create runner" butonuna tıklayın.
+7. Oluşturulan runner'ın detaylarında gösterilen registration token'ı kopyalayın. Bu token'ı runner'ı kaydederken kullanacaksınız.
+![image](https://github.com/user-attachments/assets/9f2dcc23-2f8a-47c8-8b03-e98f9b2ed755)
 
 ## Runner Yapılandırması
 
@@ -353,6 +351,7 @@ rollback:
 ```
 
 9. Sayfanın altındaki "Commit changes" butonuna tıklayın.
+
 ![image](https://github.com/user-attachments/assets/25654872-7d91-48bd-b994-762ae3852c6b)
 
 
